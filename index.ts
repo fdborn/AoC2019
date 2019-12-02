@@ -1,5 +1,6 @@
 const solutions = [
   import('./01/'),
+  import('./02/'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
