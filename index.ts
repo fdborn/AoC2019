@@ -1,7 +1,8 @@
 const solutions = [
-  import('./01/'),
-  import('./02/'),
-  import('./03/'),
+  import('./days/01/'),
+  import('./days/02/'),
+  import('./days/03/'),
+  import('./days/04/'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {

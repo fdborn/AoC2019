@@ -12,9 +12,14 @@
     "@babel/preset-typescript": "^7.7.4",
     "@types/lodash": "^4.14.149",
     "babel-loader": "^8.0.6",
+    "days": "^1.1.1",
     "lodash-es": "^4.17.15",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-text": "^0.9.5",
     "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "bs-platform": "^7.0.1",
+    "bsb-js": "^1.1.7"
   }
 }
