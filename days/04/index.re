@@ -3,10 +3,10 @@ let isLegalPassword = password => {
   let hasDouble = ref(false);
 
   for (index in 1 to String.length(password) - 1) {
-    let last = String.get(password, index - 1);
-    let current = String.get(password, index);
+    let last = password.[index - 1];
+    let current = password.[index];
 
-    if (!hasDouble^ && last == current) {
+    if (! hasDouble^ && last == current) {
       hasDouble := true;
     };
 
@@ -23,15 +23,16 @@ let hasOneDouble = password => {
   let blacklist = ref([]);
 
   for (index in 1 to String.length(password) - 1) {
-    let last = String.get(password, index - 1);
-    let current = String.get(password, index);
+    let last = password.[index - 1];
+    let current = password.[index];
 
-    let isNotInBlacklist = character => !List.exists((==)(character), blacklist^);
+    let isNotInBlacklist = character =>
+      !List.exists((==)(character), blacklist^);
 
-    if (!hasDouble^) {
+    if (! hasDouble^) {
       if (last == current && isNotInBlacklist(current)) {
         if (index < String.length(password) - 1) {
-          let next = String.get(password, index + 1);
+          let next = password.[index + 1];
           if (current == next) {
             blacklist := [current, ...blacklist^];
           } else {
@@ -50,13 +51,13 @@ let hasOneDouble = password => {
 let inputLower = 271973;
 let inputUpper = 785961;
 
-let legalPasswords = Array.init(inputUpper - inputLower + 1, i => inputLower + i)
-|> Js.Array.map(string_of_int)
-|> Js.Array.filter(isLegalPassword);
+let legalPasswords =
+  Array.init(inputUpper - inputLower + 1, i => inputLower + i)
+  |> Js.Array.map(string_of_int)
+  |> Js.Array.filter(isLegalPassword);
 
 let solutionPartOne = Js.Array.length(legalPasswords);
 
-let partTwoLegalPasswords = legalPasswords
-  |> Js.Array.filter(hasOneDouble);
+let partTwoLegalPasswords = Js.Array.filter(hasOneDouble, legalPasswords);
 
 let solutionPartTwo = Js.Array.length(partTwoLegalPasswords);
