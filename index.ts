@@ -2,7 +2,7 @@ const solutions = [
   import('./days/01/'),
   import('./days/02/'),
   import('./days/03/'),
-  import('./days/04/'),
+  import('./days/04/day04.re'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
