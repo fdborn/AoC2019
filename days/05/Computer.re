@@ -7,6 +7,10 @@ type instruction =
   | Multiply(parameterMode, parameterMode)
   | Input
   | Output(parameterMode)
+  | JumpIfTrue(parameterMode, parameterMode)
+  | JumpIfFalse(parameterMode, parameterMode)
+  | LessThan(parameterMode, parameterMode)
+  | Equals(parameterMode, parameterMode)
   | Halt
   | Invalid;
 
@@ -27,7 +31,6 @@ type state =
   | WaitingForInput(context, int => unit)
   | HasOutput(context, int)
   | Halted(context);
-
 
 let parseOpCode = (instruction: string) =>
   if (String.length(instruction) > 2) {
@@ -61,8 +64,24 @@ let parseInstruction = (number: int) => {
     Multiply(lhsMode, rhsMode);
   | 3 => Input
   | 4 =>
+    let mode = parseParameterMode(instruction, 0);
+    Output(mode);
+  | 5 =>
     let lhsMode = parseParameterMode(instruction, 0);
-    Output(lhsMode);
+    let rhsMode = parseParameterMode(instruction, 1);
+    JumpIfTrue(lhsMode, rhsMode);
+  | 6 =>
+    let lhsMode = parseParameterMode(instruction, 0);
+    let rhsMode = parseParameterMode(instruction, 1);
+    JumpIfFalse(lhsMode, rhsMode);
+  | 7 =>
+    let lhsMode = parseParameterMode(instruction, 0);
+    let rhsMode = parseParameterMode(instruction, 1);
+    LessThan(lhsMode, rhsMode);
+  | 8 =>
+    let lhsMode = parseParameterMode(instruction, 0);
+    let rhsMode = parseParameterMode(instruction, 1);
+    Equals(lhsMode, rhsMode);
   | 99 => Halt
   | _ => Invalid
   };
@@ -83,18 +102,18 @@ let transition = (context: context) => {
   let write = writeMemory(context);
   let {headPos} = context;
 
-  switch (parseInstruction(read(~mode=Immediate, ~pos=context.headPos))) {
+  switch (parseInstruction(read(~mode=Immediate, ~pos=headPos))) {
   | Add(lhsMode, rhsMode) =>
     let lhs = read(~mode=lhsMode, ~pos=headPos + 1);
     let rhs = read(~mode=rhsMode, ~pos=headPos + 2);
-    let outAddr = read(~mode=Immediate, ~pos=headPos + 3);
-    write(~pos=outAddr, ~input=lhs + rhs);
+    let outPos = read(~mode=Immediate, ~pos=headPos + 3);
+    write(~pos=outPos, ~input=lhs + rhs);
     Running({...context, headPos: headPos + 4});
   | Multiply(lhsMode, rhsMode) =>
     let lhs = read(~mode=lhsMode, ~pos=headPos + 1);
     let rhs = read(~mode=rhsMode, ~pos=headPos + 2);
-    let outAddr = read(~mode=Immediate, ~pos=headPos + 3);
-    write(~pos=outAddr, ~input=lhs * rhs);
+    let outPos = read(~mode=Immediate, ~pos=headPos + 3);
+    write(~pos=outPos, ~input=lhs * rhs);
     Running({...context, headPos: headPos + 4});
   | Input =>
     let inputPos = read(~mode=Immediate, ~pos=headPos + 1);
@@ -105,6 +124,34 @@ let transition = (context: context) => {
   | Output(mode) =>
     let output = read(~mode, ~pos=headPos + 1);
     HasOutput({...context, headPos: headPos + 2}, output);
+  | JumpIfTrue(lhsMode, rhsMode) =>
+    let conditional = read(~mode=lhsMode, ~pos=headPos + 1);
+    let newPos = read(~mode=rhsMode, ~pos=headPos + 2);
+    if (conditional != 0) {
+      Running({...context, headPos: newPos});
+    } else {
+      Running({...context, headPos: headPos + 3});
+    };
+  | JumpIfFalse(lhsMode, rhsMode) =>
+    let conditional = read(~mode=lhsMode, ~pos=headPos + 1);
+    let newPos = read(~mode=rhsMode, ~pos=headPos + 2);
+    if (conditional == 0) {
+      Running({...context, headPos: newPos});
+    } else {
+      Running({...context, headPos: headPos + 3});
+    };
+  | LessThan(lhsMode, rhsMode) =>
+    let lhs = read(~mode=lhsMode, ~pos=headPos + 1);
+    let rhs = read(~mode=rhsMode, ~pos=headPos + 2);
+    let outPos = read(~mode=Immediate, ~pos=headPos + 3);
+    write(~pos=outPos, ~input=lhs < rhs ? 1 : 0);
+    Running({...context, headPos: headPos + 4});
+  | Equals(lhsMode, rhsMode) =>
+    let lhs = read(~mode=lhsMode, ~pos=headPos + 1);
+    let rhs = read(~mode=rhsMode, ~pos=headPos + 2);
+    let outPos = read(~mode=Immediate, ~pos=headPos + 3);
+    write(~pos=outPos, ~input=lhs == rhs ? 1 : 0);
+    Running({...context, headPos: headPos + 4});
   | Halt
   | Invalid => Halted(context)
   };
@@ -125,7 +172,6 @@ let addDevices =
   ...context,
   input,
   output,
-
 };
 
 let rec run = (context: context) => {

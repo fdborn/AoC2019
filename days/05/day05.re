@@ -4,13 +4,11 @@
 let input = () => int_of_string(prompt("Awaiting input"));
 let output = output => Js.log("Computer output: " ++ string_of_int(output));
 
-let finalState =
-  Js.String.replace("\n", "", inputString)
-  |> Js.String.split(",")
-  |> Array.map(int_of_string)
-  |> Computer.load
-  |> Computer.addDevices(~input, ~output)
-  |> Computer.run;
+Js.String.replace("\n", "", inputString)
+|> Js.String.split(",")
+|> Array.map(int_of_string)
+|> Computer.load
+|> Computer.addDevices(~input, ~output)
+|> Computer.run;
 
-let solutionPartOne = 0;
-let solutionPartTwo = 0;
+// No solutions this time
