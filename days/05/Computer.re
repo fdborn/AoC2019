@@ -100,24 +100,25 @@ let transitionState = ({memory, headPos}) => {
   };
 };
 
-let interpret = (code, ~inputFn, ~outputFn) => {
-  let machineState = ref({memory: Array.copy(code), headPos: 0});
-  let isRunning = ref(true);
+type inputFunction = unit => int;
+type outputFunction = int => unit;
 
-  while (isRunning^) {
-    switch (transitionState(machineState^)) {
-    | Running(state) => machineState := state
-    | WaitingForInput({memory, headPos}, updateFn) =>
-      let input = inputFn();
-      machineState := {memory: updateFn(memory, input), headPos};
-    | HasOutput(state, output) =>
-      outputFn(output);
-      machineState := state;
-    | Halted(state) =>
-      isRunning := false;
-      machineState := state;
-    };
+let rec run =
+        (state: state, ~input: inputFunction, ~output: outputFunction) => {
+  let next = run(~input, ~output);
+
+  switch (transitionState(state)) {
+  | Running(state) => next(state)
+  | WaitingForInput(state, applyUpdate) =>
+    next({...state, memory: applyUpdate(state.memory, input())})
+  | HasOutput(state, programOutput) =>
+    output(programOutput);
+    next(state);
+  | Halted(state) => state
   };
+};
 
-  machineState^.memory;
+let load = (code: code) => {
+  memory: Array.copy(code),
+  headPos: 0,
 };
