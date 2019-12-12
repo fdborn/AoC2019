@@ -10,20 +10,26 @@ type instruction =
   | Halt
   | Invalid;
 
-type code = array(int);
+type memory = array(int);
 
-type state = {
-  memory: code,
+type inputFunction = unit => int;
+type outputFunction = int => unit;
+
+type context = {
+  mem: memory,
   headPos: int,
+  input: inputFunction,
+  output: outputFunction,
 };
 
-type machine =
-  | Running(state)
-  | WaitingForInput(state, (code, int) => code)
-  | HasOutput(state, int)
-  | Halted(state);
+type state =
+  | Running(context)
+  | WaitingForInput(context, int => unit)
+  | HasOutput(context, int)
+  | Halted(context);
 
-let parseOpCode = instruction =>
+
+let parseOpCode = (instruction: string) =>
   if (String.length(instruction) > 2) {
     int_of_string(
       String.sub(instruction, String.length(instruction) - 2, 2),
@@ -32,7 +38,7 @@ let parseOpCode = instruction =>
     int_of_string(instruction);
   };
 
-let parseParameterMode = (instruction, index) => {
+let parseParameterMode = (instruction: string, index: int) => {
   switch (instruction.[String.length(instruction) - index - 3]) {
   | '1' => Immediate
   | _ => Position
@@ -40,7 +46,7 @@ let parseParameterMode = (instruction, index) => {
   };
 };
 
-let parseInstruction = number => {
+let parseInstruction = (number: int) => {
   let instruction = string_of_int(number);
   let opCode = parseOpCode(instruction);
 
@@ -62,63 +68,75 @@ let parseInstruction = number => {
   };
 };
 
-let readMemory = (memory, mode, pos) => {
+let readMemory = ({mem}: context, ~mode: parameterMode, ~pos: int) => {
   switch (mode) {
-  | Position => memory[memory[pos]]
-  | Immediate => memory[pos]
+  | Position => mem[mem[pos]]
+  | Immediate => mem[pos]
   };
 };
 
-let transitionState = ({memory, headPos}) => {
-  let read = readMemory(memory);
+let writeMemory = ({mem}: context, ~pos: int, ~input: int) =>
+  mem[pos] = input;
 
-  switch (parseInstruction(memory[headPos])) {
+let transition = (context: context) => {
+  let read = readMemory(context);
+  let write = writeMemory(context);
+  let {headPos} = context;
+
+  switch (parseInstruction(read(~mode=Immediate, ~pos=context.headPos))) {
   | Add(lhsMode, rhsMode) =>
-    let lhs = read(lhsMode, headPos + 1);
-    let rhs = read(rhsMode, headPos + 2);
-    let outAddr = memory[headPos + 3];
-    memory[outAddr] = lhs + rhs;
-    Running({memory, headPos: headPos + 4});
+    let lhs = read(~mode=lhsMode, ~pos=headPos + 1);
+    let rhs = read(~mode=rhsMode, ~pos=headPos + 2);
+    let outAddr = read(~mode=Immediate, ~pos=headPos + 3);
+    write(~pos=outAddr, ~input=lhs + rhs);
+    Running({...context, headPos: headPos + 4});
   | Multiply(lhsMode, rhsMode) =>
-    let lhs = read(lhsMode, headPos + 1);
-    let rhs = read(rhsMode, headPos + 2);
-    let outAddr = memory[headPos + 3];
-    memory[outAddr] = lhs * rhs;
-    Running({memory, headPos: headPos + 4});
+    let lhs = read(~mode=lhsMode, ~pos=headPos + 1);
+    let rhs = read(~mode=rhsMode, ~pos=headPos + 2);
+    let outAddr = read(~mode=Immediate, ~pos=headPos + 3);
+    write(~pos=outAddr, ~input=lhs * rhs);
+    Running({...context, headPos: headPos + 4});
   | Input =>
-    let inputPos = memory[headPos + 1];
-    let updateFn = (memory, input) => {
-      memory[inputPos] = input;
-      memory;
+    let inputPos = read(~mode=Immediate, ~pos=headPos + 1);
+    let updateFn = (input: int) => {
+      write(~pos=inputPos, ~input);
     };
-    WaitingForInput({memory, headPos: headPos + 2}, updateFn);
+    WaitingForInput({...context, headPos: headPos + 2}, updateFn);
   | Output(mode) =>
-    let output = read(mode, headPos + 1);
-    HasOutput({memory, headPos: headPos + 2}, output);
+    let output = read(~mode, ~pos=headPos + 1);
+    HasOutput({...context, headPos: headPos + 2}, output);
   | Halt
-  | Invalid => Halted({memory, headPos})
+  | Invalid => Halted(context)
   };
 };
 
-type inputFunction = unit => int;
-type outputFunction = int => unit;
+let inputStub = () => 0;
+let outputStub = _output => ();
 
-let rec run =
-        (state: state, ~input: inputFunction, ~output: outputFunction) => {
-  let next = run(~input, ~output);
-
-  switch (transitionState(state)) {
-  | Running(state) => next(state)
-  | WaitingForInput(state, applyUpdate) =>
-    next({...state, memory: applyUpdate(state.memory, input())})
-  | HasOutput(state, programOutput) =>
-    output(programOutput);
-    next(state);
-  | Halted(state) => state
-  };
-};
-
-let load = (code: code) => {
-  memory: Array.copy(code),
+let load = (code: memory) => {
+  mem: Array.copy(code),
   headPos: 0,
+  input: inputStub,
+  output: outputStub,
+};
+
+let addDevices =
+    (context: context, ~input: inputFunction, ~output: outputFunction) => {
+  ...context,
+  input,
+  output,
+
+};
+
+let rec run = (context: context) => {
+  switch (transition(context)) {
+  | Running(context) => run(context)
+  | WaitingForInput(context, applyUpdate) =>
+    applyUpdate(context.input());
+    run(context);
+  | HasOutput(context, programOutput) =>
+    context.output(programOutput);
+    run(context);
+  | Halted(context) => context
+  };
 };

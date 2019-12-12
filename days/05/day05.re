@@ -9,7 +9,8 @@ let finalState =
   |> Js.String.split(",")
   |> Array.map(int_of_string)
   |> Computer.load
-  |> Computer.run(~input, ~output);
+  |> Computer.addDevices(~input, ~output)
+  |> Computer.run;
 
 let solutionPartOne = 0;
 let solutionPartTwo = 0;
