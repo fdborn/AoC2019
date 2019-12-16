@@ -4,6 +4,7 @@ const solutions = [
   import('./days/03/'),
   import('./days/04/day04.re'),
   import('./days/05/day05.re'),
+  import('./days/06/day06.re'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
