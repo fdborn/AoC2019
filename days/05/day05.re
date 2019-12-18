@@ -11,4 +11,9 @@ Js.String.replace("\n", "", inputString)
 |> Computer.addDevices(~input, ~output)
 |> Computer.run;
 
-// No solutions this time
+// No real solutions this time
+[@genType]
+let solutionPartOne = 0;
+
+[@genType]
+let solutionPartTwo = 0;
