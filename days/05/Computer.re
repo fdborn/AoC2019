@@ -41,13 +41,12 @@ let parseOpCode = (instruction: string) =>
     int_of_string(instruction);
   };
 
-let parseParameterMode = (instruction: string, index: int) => {
+let parseParameterMode = (instruction: string, index: int) =>
   switch (instruction.[String.length(instruction) - index - 3]) {
   | '1' => Immediate
   | _ => Position
   | exception (Invalid_argument(_)) => Position
   };
-};
 
 let parseInstruction = (number: int) => {
   let instruction = string_of_int(number);
@@ -174,7 +173,7 @@ let addDevices =
   output,
 };
 
-let rec run = (context: context) => {
+let rec run = (context: context) =>
   switch (transition(context)) {
   | Running(context) => run(context)
   | WaitingForInput(context, applyUpdate) =>
@@ -185,4 +184,3 @@ let rec run = (context: context) => {
     run(context);
   | Halted(context) => context
   };
-};
