@@ -78,7 +78,6 @@ let orbits =
 let orbitTree =
   Tree.init("COM", ~children=StringMap.getWithDefault(orbits, _, []));
 
-[@genType]
 let solutionPartOne = Tree.countDepth(orbitTree);
 
 // Part two
@@ -92,5 +91,4 @@ let subTree =
 let youDistance = Tree.countNodesTo(~search="YOU", subTree) - 2;
 let sanDistance = Tree.countNodesTo(~search="SAN", subTree) - 2;
 
-[@genType]
 let solutionPartTwo = youDistance + sanDistance;

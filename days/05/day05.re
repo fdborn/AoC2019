@@ -12,8 +12,6 @@ Js.String.replace("\n", "", inputString)
 |> Computer.run;
 
 // No real solutions this time
-[@genType]
 let solutionPartOne = 0;
 
-[@genType]
 let solutionPartTwo = 0;

@@ -56,10 +56,8 @@ let legalPasswords =
   |> Js.Array.map(string_of_int)
   |> Js.Array.filter(isLegalPassword);
 
-[@genType]
 let solutionPartOne = Js.Array.length(legalPasswords);
 
 let partTwoLegalPasswords = Js.Array.filter(hasOneDouble, legalPasswords);
 
-[@genType]
 let solutionPartTwo = Js.Array.length(partTwoLegalPasswords);

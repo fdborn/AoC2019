@@ -2,9 +2,9 @@ const solutions = [
   import('./days/01/'),
   import('./days/02/'),
   import('./days/03/'),
-  import('./days/04/day04.gen'),
-  import('./days/05/day05.gen'),
-  import('./days/06/day06.gen'),
+  import('./days/04/day04.re'),
+  import('./days/05/day05.re'),
+  import('./days/06/day06.re'),
   import('./days/07/day07.re'),
 ];
 
