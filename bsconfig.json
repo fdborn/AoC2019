@@ -10,7 +10,9 @@
     "in-source": true
   },
   "suffix": ".bs.js",
-  "bs-dependencies": [],
+  "bs-dependencies": [
+    "@aantron/repromise"
+  ],
   "warnings": {
     "error" : "+101"
   },

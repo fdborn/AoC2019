@@ -5,6 +5,7 @@ const solutions = [
   import('./days/04/day04.gen'),
   import('./days/05/day05.gen'),
   import('./days/06/day06.gen'),
+  import('./days/07/day07.re'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,8 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(`Solutions for Day ${day}:`);
 
     solutions[day - 1].then(({solutionPartOne, solutionPartTwo}) => {
-      console.log(`Part one: ${solutionPartOne}`);
-      console.log(`Part two: ${solutionPartTwo}`);
+      Promise.resolve(solutionPartOne)
+        .then(solution => console.log(`Part one: ${solution}`));
+
+      Promise.resolve(solutionPartTwo)
+        .then(solution => console.log(`Part two: ${solution}`));
     });
   }));
 });
