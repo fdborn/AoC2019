@@ -3,7 +3,8 @@ open StdLabels;
 [@bs.module "./input.txt"] external inputString: string = "default";
 
 let input = () => float_of_string(prompt("Awaiting input"));
-let output = output => Js.log("Computer output: " ++ Js.Float.toString(output));
+let output = output =>
+  Js.log("Computer output: " ++ Js.Float.toString(output));
 
 inputString
 |> Js.String.replace("\n", "")

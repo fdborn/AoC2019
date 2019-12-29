@@ -111,11 +111,18 @@ let readMemory =
   };
 };
 
-let writeMemory = ({mem, relativeBase}: context, ~mode: parameterMode, ~pos: int, ~input: float) => switch (mode) {
+let writeMemory =
+    (
+      {mem, relativeBase}: context,
+      ~mode: parameterMode,
+      ~pos: int,
+      ~input: float,
+    ) =>
+  switch (mode) {
   | Position => mem[int_of_float(mem[pos])] = input
   | Immediate => mem[pos] = input
   | Relative => mem[relativeBase + int_of_float(mem[pos])] = input
-};
+  };
 
 let transition = (context: context) => {
   let read = readMemory(context);
