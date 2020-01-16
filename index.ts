@@ -2,13 +2,22 @@ const solutions = [
   import('./days/01/'),
   import('./days/02/'),
   import('./days/03/'),
+  // @ts-ignore
   import('./days/04/day04.re'),
+  // @ts-ignore
   import('./days/05/day05.re'),
+  // @ts-ignore
   import('./days/06/day06.re'),
+  // @ts-ignore
   import('./days/07/day07.re'),
+  // @ts-ignore
   import('./days/08/day08.re'),
+  // @ts-ignore
   import('./days/09/day09.re'),
+  // @ts-ignore
   import('./days/10/day10.re'),
+  // @ts-ignore
+  import('./days/11/day11.re'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
