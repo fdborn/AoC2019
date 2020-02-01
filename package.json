@@ -20,8 +20,8 @@
     "typescript": "^3.7.2"
   },
   "devDependencies": {
-    "@aantron/repromise": "^0.6.1",
     "bs-platform": "^7.0.1",
-    "bsb-js": "^1.1.7"
+    "bsb-js": "^1.1.7",
+    "reason-promise": "^1.0.2"
   }
 }
