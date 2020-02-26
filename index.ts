@@ -18,6 +18,8 @@ const solutions = [
   import('./days/10/day10.re'),
   // @ts-ignore
   import('./days/11/day11.re'),
+  // @ts-ignore
+  import('./days/12/day12.re'),
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
