@@ -18,10 +18,10 @@ let makeIterator = ((first, second): (int, int)) => {
 };
 
 module Amplifier = {
-  type t = Repromise.t(int);
+  type t = Promise.t(int);
 
   let make = (~code: Computer.memory, ~phase: int, input) => {
-    let (promise, resolvePromise) = Repromise.make();
+    let (promise, resolvePromise) = Promise.pending();
 
     Computer.load(code)
     |> Computer.addDevices(
@@ -37,10 +37,10 @@ module Amplifier = {
 
 let runChain = (~code: Computer.memory, phases: list(int)) =>
   List.fold_left(
-    ~init=Repromise.resolved(0),
+    ~init=Promise.resolved(0),
     ~f=
       (previous, phase) =>
-        previous |> Repromise.andThen(Amplifier.make(~code, ~phase)),
+        previous->Promise.flatMap(Amplifier.make(~code, ~phase)),
     phases,
   );
 
@@ -67,11 +67,11 @@ let rec permutations = values =>
 let phaseSettingPermutations = permutations([0, 1, 2, 3, 4]);
 let maxSignal =
   phaseSettingPermutations
-  |> List.fold_left(~init=Repromise.resolved(0), ~f=(max, permutation) => {
+  |> List.fold_left(~init=Promise.resolved(0), ~f=(max, permutation) => {
        max
-       |> Repromise.andThen(maxValue => {
+       ->Promise.flatMap(maxValue => {
             runChain(~code, permutation)
-            |> Repromise.map(currentValue =>
+            ->Promise.map(currentValue =>
                  currentValue > maxValue ? currentValue : maxValue
                )
           })
